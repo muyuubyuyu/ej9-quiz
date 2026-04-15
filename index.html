@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Honda EJ9 Quiz</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #181c24;
+      --panel-2: #202633;
+      --text: #f4f7fb;
+      --muted: #a8b2c7;
+      --accent: #e53935;
+      --accent-2: #ff6f61;
+      --good: #29b36b;
+      --bad: #d64c4c;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 18px 50px rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(229,57,53,0.2), transparent 30%),
+        linear-gradient(180deg, #0c0f14 0%, #10141b 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 980px;
+      background: rgba(24, 28, 36, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 28px 28px 16px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(229,57,53,0.16), rgba(255,255,255,0.03));
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .content {
+      padding: 24px 28px 28px;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .pill-wrap {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+    }
+
+    .question-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .question-label {
+      display: inline-block;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      font-size: clamp(22px, 3vw, 30px);
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 170px;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card:hover:not(:disabled) {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.18);
+      background: linear-gradient(180deg, rgba(229,57,53,0.12), rgba(255,255,255,0.03));
+    }
+
+    .card:disabled {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .card-letter {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.08);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .card-text {
+      font-size: 20px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .card-note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .card.correct {
+      border-color: rgba(41,179,107,0.7);
+      background: rgba(41,179,107,0.16);
+    }
+
+    .card.wrong {
+      border-color: rgba(214,76,76,0.7);
+      background: rgba(214,76,76,0.16);
+    }
+
+    .feedback {
+      min-height: 28px;
+      margin: 16px 0 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .feedback.good { color: #7ee2aa; }
+    .feedback.bad { color: #ff9a9a; }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .result {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .result h2 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 40px);
+    }
+
+    .result .title {
+      margin: 12px 0 8px;
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 800;
+    }
+
+    .result p {
+      margin: 8px 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 820px) {
+      .answers {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        min-height: 130px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="hero">
+      <h1>Honda EJ9 Quiz</h1>
+      <p>6 Fragen pro Runde. 3 Karten pro Frage. Nur wer alles richtig hat, verdient den ultimativen Titel.</p>
+    </div>
+
+    <div class="content">
+      <div class="topbar">
+        <div class="pill-wrap">
+          <div class="pill" id="questionCounter">Frage 1 / 6</div>
+          <div class="pill" id="scoreCounter">Richtig: 0</div>
+          <div class="pill" id="poolCounter">Fragenpool: 18</div>
+        </div>
+        <div class="pill">Thema: Honda Civic EJ9</div>
+      </div>
+
+      <div id="quizView">
+        <div class="question-box">
+          <div class="question-label">Aktuelle Frage</div>
+          <h2 class="question-text" id="questionText"></h2>
+          <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div class="answers" id="answers"></div>
+
+        <div class="actions">
+          <button class="btn btn-primary hidden" id="nextBtn">Nächste Frage</button>
+          <button class="btn btn-secondary" id="restartBtn">Neu mischen</button>
+        </div>
+      </div>
+
+      <div id="resultView" class="result hidden">
+        <h2>Runde beendet</h2>
+        <div class="title" id="resultTitle"></div>
+        <p id="resultScore"></p>
+        <p id="resultText"></p>
+        <div class="actions" style="justify-content:center; margin-top: 24px;">
+          <button class="btn btn-primary" id="playAgainBtn">Nochmal spielen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questionPool = [
+      {
+        question: "Für welches Modell steht der Code EJ9?",
+        answers: [
+          "Honda Civic 6. Generation 3-Türer 1.4",
+          "Honda Accord Coupe V6",
+          "Honda CRX Del Sol 1.6"
+        ],
+        correct: 0,
+        explanation: "Der EJ9 ist in der Szene vor allem als Civic der 6. Generation mit 1.4-Liter-Motor bekannt."
+      },
+      {
+        question: "Welcher Motor ist im Honda EJ9 serienmäßig typischerweise verbaut?",
+        answers: [
+          "D14A3 oder D14A4",
+          "B16B",
+          "K20A2"
+        ],
+        correct: 0,
+        explanation: "Beim EJ9 ist typischerweise ein D14-Motor verbaut, nicht die größeren B- oder K-Serien."
+      },
+      {
+        question: "Wie viele Türen hat der Honda EJ9 in der üblichen Ausführung?",
+        answers: [
+          "5 Türen",
+          "3 Türen",
+          "2 Türen plus Ladefläche"
+        ],
+        correct: 1,
+        explanation: "Der EJ9 ist klassisch der 3-Türer."
+      },
+      {
+        question: "Welche Antriebsart hat der Honda EJ9 serienmäßig?",
+        answers: [
+          "Frontantrieb",
+          "Heckantrieb",
+          "Allradantrieb"
+        ],
+        correct: 0,
+        explanation: "Der EJ9 ist ein Fronttriebler, wie für viele Civic-Modelle dieser Zeit typisch."
+      },
+      {
+        question: "Zu welcher Civic-Generation gehört der EJ9?",
+        answers: [
+          "5. Generation",
+          "6. Generation",
+          "8. Generation"
+        ],
+        correct: 1,
+        explanation: "EJ9 gehört zur 6. Civic-Generation."
+      },
+      {
+        question: "Wofür ist der EJ9 in der Tuning-Szene besonders bekannt?",
+        answers: [
+          "Als beliebte Basis für Umbauten und Swaps",
+          "Als werksseitiger V8-Tracktool",
+          "Als reiner Geländewagen-Umbau"
+        ],
+        correct: 0,
+        explanation: "Der EJ9 ist wegen Gewicht, Teileangebot und Plattform sehr beliebt für Umbauten."
+      },
+      {
+        question: "Welcher Swap ist bei EJ9-Fans besonders beliebt?",
+        answers: [
+          "B-Serie-Swap",
+          "Boxermotor-Swap",
+          "V12-Swap"
+        ],
+        correct: 0,
+        explanation: "Gerade B16 und andere B-Serien-Swaps sind in der Honda-Szene Klassiker."
+      },
+      {
+        question: "Welche Kraftstoffart nutzt der serienmäßige EJ9?",
+        answers: [
+          "Diesel",
+          "Benzin",
+          "Autogas nur ab Werk"
+        ],
+        correct: 1,
+        explanation: "Der EJ9 ist ein Benziner."
+      },
+      {
+        question: "Was beschreibt beim EJ9 der Begriff 'Facelift' in der Regel?",
+        answers: [
+          "Überarbeitete Front und kleine Modellpflege",
+          "Kompletter Wechsel auf Heckmotor",
+          "Umbau auf Automatik nur für Export"
+        ],
+        correct: 0,
+        explanation: "Facelift meint die optische und teils technische Modellpflege."
+      },
+      {
+        question: "Was ist beim EJ9 im Vergleich zu stärkeren Civic-Versionen oft ein Kritikpunkt?",
+        answers: [
+          "Zu wenig Kofferraum für einen Van",
+          "Relativ wenig Serienleistung",
+          "Serienmäßig zu hoher Verbrauch eines V8"
+        ],
+        correct: 1,
+        explanation: "Der EJ9 ist leicht und beliebt, aber serienmäßig nicht besonders stark motorisiert."
+      },
+      {
+        question: "Warum ist der EJ9 für Einsteiger in die Honda-Szene beliebt?",
+        answers: [
+          "Weil er oft als solide und zugängliche Basis gilt",
+          "Weil er nur mit Rennlizenz gefahren werden darf",
+          "Weil Ersatzteile grundsätzlich verboten sind"
+        ],
+        correct: 0,
+        explanation: "Viele schätzen ihn als günstige und gut modifizierbare Plattform."
+      },
+      {
+        question: "Welche Karosserieform passt am ehesten zum EJ9?",
+        answers: [
+          "Kompakter Hatchback",
+          "Großer Pickup",
+          "Luxus-Limousine mit langem Radstand"
+        ],
+        correct: 0,
+        explanation: "Der EJ9 ist ein kompakter Hatchback."
+      },
+      {
+        question: "Welcher Motorcode wäre eher NICHT typisch für einen serienmäßigen EJ9?",
+        answers: [
+          "D14A4",
+          "D14A3",
+          "B18C4"
+        ],
+        correct: 2,
+        explanation: "Ein B18C4 wäre kein typischer Serienmotor im EJ9."
+      },
+      {
+        question: "Welche Aussage zum Gewicht des EJ9 trifft am ehesten zu?",
+        answers: [
+          "Er gilt als eher leichtes Fahrzeug",
+          "Er wiegt serienmäßig über 2 Tonnen",
+          "Er ist schwerer als ein großer SUV"
+        ],
+        correct: 0,
+        explanation: "Der EJ9 wird oft als angenehm leicht wahrgenommen."
+      },
+      {
+        question: "Was macht viele Honda-Fans am EJ9 besonders an?",
+        answers: [
+          "Die Kombination aus einfacher Technik und Tuning-Potenzial",
+          "Die serienmäßige Luftfederung im Luxussegment",
+          "Der eingebaute Kühlschrank im Fond"
+        ],
+        correct: 0,
+        explanation: "Genau diese Mischung macht den EJ9 für viele so charmant."
+      },
+      {
+        question: "Welche Getriebeart ist beim EJ9 am verbreitetsten?",
+        answers: [
+          "Handschaltung",
+          "Doppelkupplungsgetriebe mit Launch Control",
+          "CVT im Performance-Paket"
+        ],
+        correct: 0,
+        explanation: "Am häufigsten ist der EJ9 mit Handschaltung anzutreffen."
+      },
+      {
+        question: "Welche Szene-Bezeichnung hört man beim EJ9 oft im Zusammenhang mit Umbauten?",
+        answers: [
+          "OEM+",
+          "Steam Punk Cruiser",
+          "Lifted Mud Beast"
+        ],
+        correct: 0,
+        explanation: "OEM+ ist in der Honda-Szene ein typischer Stilbegriff für saubere Umbauten."
+      },
+      {
+        question: "Was beschreibt beim EJ9 ein 'Swap' am besten?",
+        answers: [
+          "Den Austausch eines Motors oder größerer Komponenten",
+          "Das Wechseln des Tankdeckels gegen Carbon",
+          "Nur das Waschen des Fahrzeugs"
+        ],
+        correct: 0,
+        explanation: "Mit Swap meint man in der Regel den Tausch von Motor oder Antriebskomponenten."
+      }
+    ];
+
+    const totalQuestionsPerRound = 6;
+
+    const questionText = document.getElementById("questionText");
+    const answersEl = document.getElementById("answers");
+    const feedbackEl = document.getElementById("feedback");
+    const questionCounter = document.getElementById("questionCounter");
+    const scoreCounter = document.getElementById("scoreCounter");
+    const poolCounter = document.getElementById("poolCounter");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const quizView = document.getElementById("quizView");
+    const resultView = document.getElementById("resultView");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultScore = document.getElementById("resultScore");
+    const resultText = document.getElementById("resultText");
+
+    let roundQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    poolCounter.textContent = `Fragenpool: ${questionPool.length}`;
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function startGame() {
+      roundQuestions = shuffle(questionPool).slice(0, totalQuestionsPerRound);
+      currentIndex = 0;
+      score = 0;
+      answered = false;
+      quizView.classList.remove("hidden");
+      resultView.classList.add("hidden");
+      nextBtn.classList.add("hidden");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const current = roundQuestions[currentIndex];
+      answered = false;
+      feedbackEl.textContent = "";
+      feedbackEl.className = "feedback";
+      nextBtn.classList.add("hidden");
+
+      questionCounter.textContent = `Frage ${currentIndex + 1} / ${totalQuestionsPerRound}`;
+      scoreCounter.textContent = `Richtig: ${score}`;
+      questionText.textContent = current.question;
+
+      answersEl.innerHTML = "";
+
+      current.answers.forEach((answer, index) => {
+        const button = document.createElement("button");
+        button.className = "card";
+        button.innerHTML = `
+          <div>
+            <div class="card-letter">${String.fromCharCode(65 + index)}</div>
+            <div class="card-text">${answer}</div>
+          </div>
+          <div class="card-note">Klick zum Antworten</div>
+        `;
+
+        button.addEventListener("click", () => chooseAnswer(index, button));
+        answersEl.appendChild(button);
+      });
+    }
+
+    function chooseAnswer(index, clickedButton) {
+      if (answered) return;
+      answered = true;
+
+      const current = roundQuestions[currentIndex];
+      const cards = [...document.querySelectorAll(".card")];
+
+      cards.forEach((card, cardIndex) => {
+        card.disabled = true;
+        if (cardIndex === current.correct) {
+          card.classList.add("correct");
+        }
+      });
+
+      if (index === current.correct) {
+        score++;
+        clickedButton.classList.add("correct");
+        feedbackEl.textContent = `Richtig. ${current.explanation}`;
+        feedbackEl.classList.add("good");
+      } else {
+        clickedButton.classList.add("wrong");
+        feedbackEl.textContent = `Falsch. ${current.explanation}`;
+        feedbackEl.classList.add("bad");
+      }
+
+      scoreCounter.textContent = `Richtig: ${score}`;
+
+      if (currentIndex < totalQuestionsPerRound - 1) {
+        nextBtn.classList.remove("hidden");
+      } else {
+        nextBtn.textContent = "Ergebnis ansehen";
+        nextBtn.classList.remove("hidden");
+      }
+    }
+
+    function nextStep() {
+      if (currentIndex < totalQuestionsPerRound - 1) {
+        currentIndex++;
+        nextBtn.textContent = "Nächste Frage";
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      quizView.classList.add("hidden");
+      resultView.classList.remove("hidden");
+
+      const perfect = score === totalQuestionsPerRound;
+      resultTitle.textContent = perfect
+        ? "Shawn - Mega Mechanic"
+        : "Shawn - Wannabe Honda Poser";
+
+      resultScore.textContent = `Dein Ergebnis: ${score} von ${totalQuestionsPerRound} richtig.`;
+      resultText.textContent = perfect
+        ? "Brutal abgeliefert. Du kennst den EJ9 offenbar nicht nur vom Hörensagen."
+        : "Da geht noch was. Nochmal starten und den Honda-Respekt zurückholen.";
+    }
+
+    nextBtn.addEventListener("click", nextStep);
+    restartBtn.addEventListener("click", startGame);
+    playAgainBtn.addEventListener("click", startGame);
+
+    startGame();
+  </script>
+</body>
+</html>
